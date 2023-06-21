@@ -1,14 +1,29 @@
-var express = require('express');
-var router = express.Router();
-const flightsCtrl = require('../controllers/flights.js');
+const Flight = require('../models/flight.js');
 
-// GET /flights
-router.get('/', flightsCtrl.index);
+module.exports = {
+    new: newFlight,
+    index, 
+    create
+}
 
-// GET /flights/new
-router.get('/new', flightsCtrl.new);
+function newFlight(req, res) {
+    res.render('flights/new', { errorMsg: ''})
+}
 
-// POST /flights
-router.post('/', flightsCtrl.create)
+async function index (req, res){
+    const allFlights = await Flight.find();
 
-module.exports = router;
+    res.render('flights/index',{
+      flights: allFlights
+    });
+}
+
+async function create(req, res) {
+    try{
+        await Flight.create(req.body);
+        res.redirect('/flights');
+    } catch (err) {
+        console.log(err);
+        res.render('flights/new', { errorMsg: err.message})
+    }
+}
